@@ -1,6 +1,6 @@
 const reviews = [
   {
-    name: "Sara M.",
+    name: "Wiame Jawahir",
     role: "Concept artist",
     body:
       "I used to spend an hour just writing prompts. Now I drop a reference, get a starting point in seconds, and tweak from there.",
@@ -14,7 +14,7 @@ const reviews = [
     bg: "bg-accent-lime",
   },
   {
-    name: "Yusra A.",
+    name: "Windy Mack",
     role: "Brand designer",
     body:
       "Clean, fast, no friction. Paste an image with Ctrl+V and you get a usable prompt — exactly what I needed for moodboards.",
