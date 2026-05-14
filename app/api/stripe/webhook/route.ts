@@ -28,80 +28,98 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Bad signature: ${err.message}` }, { status: 400 });
   }
 
-  if (event.type !== "checkout.session.completed") {
+  const service = createSupabaseServiceClient();
+
+  // ── invoice.paid ──────────────────────────────────────────────────────────
+  // Fires on every successful charge: initial subscription AND each renewal.
+  // This is the single source of truth for granting credits.
+  if (event.type === "invoice.paid") {
+    const invoice = event.data.object as Stripe.Invoice & {
+      subscription?: string | null;
+      payment_intent?: string | null;
+    };
+
+    // Only process subscription invoices.
+    if (!invoice.subscription) {
+      return NextResponse.json({ received: true, ignored: "not a subscription invoice" });
+    }
+
+    // Idempotency: skip if this invoice was already processed.
+    const { data: existing } = await service
+      .from("purchases")
+      .select("id")
+      .eq("stripe_session_id", invoice.id)
+      .maybeSingle();
+
+    if (existing) {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+
+    // Retrieve subscription to get plan metadata.
+    const subscription = await stripe.subscriptions.retrieve(
+      invoice.subscription as string
+    );
+    const userId = subscription.metadata?.supabase_user_id;
+    const planId = subscription.metadata?.plan_id;
+
+    if (!userId || !planId) {
+      console.error("invoice.paid: missing subscription metadata", subscription.id);
+      return NextResponse.json({ error: "Missing subscription metadata" }, { status: 400 });
+    }
+
+    const plan = findPlan(planId);
+    if (!plan) {
+      return NextResponse.json({ error: "Unknown plan" }, { status: 400 });
+    }
+
+    const billingMonth = currentBillingMonth();
+    const isUnlimited = plan.credits === "unlimited";
+    const creditsToGrant = isUnlimited ? 0 : (plan.credits as number);
+
+    // RESET (not add) credits for this month — subscription grants a fresh
+    // allowance each billing cycle, not a top-up on existing balance.
+    const { error: upsertErr } = await service.from("credit_balances").upsert(
+      {
+        user_id: userId,
+        billing_month: billingMonth,
+        credits_remaining: creditsToGrant,
+        unlimited: isUnlimited,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id,billing_month" }
+    );
+
+    if (upsertErr) {
+      return NextResponse.json({ error: upsertErr.message }, { status: 500 });
+    }
+
+    await service.from("purchases").insert({
+      user_id: userId,
+      plan_id: plan.id,
+      billing_month: billingMonth,
+      credits_granted: creditsToGrant,
+      unlimited: isUnlimited,
+      amount_cents: invoice.amount_paid,
+      currency: invoice.currency ?? "usd",
+      stripe_session_id: invoice.id,
+      stripe_payment_intent:
+        typeof invoice.payment_intent === "string" ? invoice.payment_intent : null,
+    });
+
     return NextResponse.json({ received: true });
   }
 
-  const session = event.data.object as Stripe.Checkout.Session;
-  if (session.payment_status !== "paid") {
-    return NextResponse.json({ received: true, ignored: "not paid" });
+  // ── customer.subscription.deleted ─────────────────────────────────────────
+  // Subscription was cancelled (immediately or after period end).
+  // Credits for the current month stay until they expire naturally — no
+  // action needed. We log it for visibility only.
+  if (event.type === "customer.subscription.deleted") {
+    const subscription = event.data.object as Stripe.Subscription;
+    console.log(
+      `Subscription cancelled: ${subscription.id} for user ${subscription.metadata?.supabase_user_id}`
+    );
+    return NextResponse.json({ received: true });
   }
-
-  const userId = session.metadata?.supabase_user_id;
-  const planId = session.metadata?.plan_id;
-  if (!userId || !planId) {
-    return NextResponse.json({ error: "Missing metadata" }, { status: 400 });
-  }
-
-  const plan = findPlan(planId);
-  if (!plan) {
-    return NextResponse.json({ error: "Unknown plan" }, { status: 400 });
-  }
-
-  const service = createSupabaseServiceClient();
-  const billingMonth = currentBillingMonth();
-  const isUnlimited = plan.credits === "unlimited";
-  const creditsToGrant = isUnlimited ? 0 : (plan.credits as number);
-
-  // Idempotency: skip if we've recorded this checkout session already.
-  const { data: existing } = await service
-    .from("purchases")
-    .select("id")
-    .eq("stripe_session_id", session.id)
-    .maybeSingle();
-
-  if (existing) {
-    return NextResponse.json({ received: true, duplicate: true });
-  }
-
-  // Read current balance for this user/month.
-  const { data: current } = await service
-    .from("credit_balances")
-    .select("credits_remaining, unlimited")
-    .eq("user_id", userId)
-    .eq("billing_month", billingMonth)
-    .maybeSingle();
-
-  const newCredits = (current?.credits_remaining ?? 0) + creditsToGrant;
-  const newUnlimited = isUnlimited || (current?.unlimited ?? false);
-
-  const { error: upsertErr } = await service.from("credit_balances").upsert(
-    {
-      user_id: userId,
-      billing_month: billingMonth,
-      credits_remaining: newCredits,
-      unlimited: newUnlimited,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "user_id,billing_month" }
-  );
-
-  if (upsertErr) {
-    return NextResponse.json({ error: upsertErr.message }, { status: 500 });
-  }
-
-  await service.from("purchases").insert({
-    user_id: userId,
-    plan_id: plan.id,
-    billing_month: billingMonth,
-    credits_granted: creditsToGrant,
-    unlimited: isUnlimited,
-    amount_cents: session.amount_total ?? plan.priceCents,
-    currency: session.currency ?? "usd",
-    stripe_session_id: session.id,
-    stripe_payment_intent:
-      typeof session.payment_intent === "string" ? session.payment_intent : null,
-  });
 
   return NextResponse.json({ received: true });
 }

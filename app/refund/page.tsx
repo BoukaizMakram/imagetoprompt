@@ -12,13 +12,16 @@ export default function Page() {
       <h2>Eligibility</h2>
       <p>
         You may request a full refund within <strong>7 days</strong> of your initial subscription
-        purchase if you have not made substantial use of the service.
+        purchase, provided you have used <strong>2 or fewer generations</strong> during that period.
+        Refunds are not available once more than 2 credits have been consumed, as the service has
+        been materially used.
       </p>
 
       <h2>Non-refundable charges</h2>
       <p>
-        Subscription renewals are non-refundable. You may cancel at any time to stop future
-        renewals; cancellation takes effect at the end of the current billing period.
+        Subscription renewals are non-refundable under any circumstances. You may cancel at any
+        time to stop future renewals; cancellation takes effect at the end of the current billing
+        period and you retain access to your remaining credits until then.
       </p>
 
       <h2>How to request a refund</h2>

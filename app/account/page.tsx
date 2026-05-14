@@ -135,7 +135,7 @@ export default async function AccountPage({
                 <div>
                   <div className="font-semibold text-ink capitalize">{p.plan_id}</div>
                   <div className="text-ink/50 text-xs">
-                    {new Date(p.created_at).toLocaleDateString()} ·{" "}
+                    {p.created_at.slice(0, 10)} ·{" "}
                     {p.unlimited ? "Unlimited month" : `+${p.credits_granted} credits`}
                   </div>
                 </div>

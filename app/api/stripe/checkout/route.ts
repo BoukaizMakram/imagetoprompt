@@ -30,9 +30,7 @@ export async function POST(req: NextRequest) {
   const priceId = process.env[plan.stripePriceEnv];
   if (!priceId) {
     return NextResponse.json(
-      {
-        error: `Server is missing ${plan.stripePriceEnv}. Add the Stripe Price ID for the "${plan.name}" plan to .env.local.`,
-      },
+      { error: `Server is missing ${plan.stripePriceEnv}.` },
       { status: 500 }
     );
   }
@@ -43,43 +41,47 @@ export async function POST(req: NextRequest) {
     new URL(req.url).origin;
 
   const stripe = getStripe();
+  const service = createSupabaseServiceClient();
 
   // Reuse a Stripe customer per user when possible.
-  const service = createSupabaseServiceClient();
   const { data: profile } = await service
     .from("profiles")
     .select("stripe_customer_id, email")
     .eq("id", user.id)
     .maybeSingle();
 
-  let customerId = profile?.stripe_customer_id ?? undefined;
-  if (!customerId) {
-    const customer = await stripe.customers.create({
-      email: user.email ?? profile?.email ?? undefined,
-      metadata: { supabase_user_id: user.id },
-    });
-    customerId = customer.id;
-    await service.from("profiles").update({ stripe_customer_id: customerId }).eq("id", user.id);
-  }
+  try {
+    let customerId = profile?.stripe_customer_id ?? undefined;
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email ?? profile?.email ?? undefined,
+        metadata: { supabase_user_id: user.id },
+      });
+      customerId = customer.id;
+      await service.from("profiles").update({ stripe_customer_id: customerId }).eq("id", user.id);
+    }
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    customer: customerId,
-    line_items: [{ price: priceId, quantity: 1 }],
-    allow_promotion_codes: true,
-    success_url: `${origin}/account?purchase=success`,
-    cancel_url: `${origin}/pricing?purchase=cancelled`,
-    metadata: {
-      supabase_user_id: user.id,
-      plan_id: plan.id,
-    },
-    payment_intent_data: {
-      metadata: {
-        supabase_user_id: user.id,
-        plan_id: plan.id,
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      customer: customerId,
+      line_items: [{ price: priceId, quantity: 1 }],
+      allow_promotion_codes: true,
+      subscription_data: {
+        metadata: {
+          supabase_user_id: user.id,
+          plan_id: plan.id,
+        },
       },
-    },
-  });
+      success_url: `${origin}/account?purchase=success`,
+      cancel_url: `${origin}/pricing`,
+    });
 
-  return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: session.url });
+  } catch (err: any) {
+    console.error("Stripe checkout error:", err?.message ?? err);
+    return NextResponse.json(
+      { error: err?.message || "Could not create checkout session." },
+      { status: 500 }
+    );
+  }
 }

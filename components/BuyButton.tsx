@@ -30,8 +30,10 @@ export function BuyButton({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId }),
       });
-      const data = await res.json();
-      if (!res.ok || !data.url) throw new Error(data?.error || "Checkout failed");
+      const text = await res.text();
+      let data: any = {};
+      try { data = JSON.parse(text); } catch { /* non-JSON error page */ }
+      if (!res.ok || !data.url) throw new Error(data?.error || `Checkout failed (${res.status})`);
       window.location.href = data.url as string;
     } catch (e: any) {
       setError(e.message || "Could not start checkout.");

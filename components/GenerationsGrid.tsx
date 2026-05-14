@@ -49,7 +49,7 @@ export function GenerationsGrid({ items }: { items: Generation[] }) {
               <div className="p-3 flex flex-col gap-1 bg-white">
                 <div className="flex items-center justify-between gap-2 text-[11px] text-ink/50">
                   <span className="uppercase tracking-wide">{g.mode}</span>
-                  <span>{new Date(g.created_at).toLocaleDateString()}</span>
+                  <span>{g.created_at.slice(0, 10)}</span>
                 </div>
                 <p className="text-xs text-ink/75 line-clamp-2 leading-relaxed">{g.prompt}</p>
               </div>
@@ -62,7 +62,7 @@ export function GenerationsGrid({ items }: { items: Generation[] }) {
         <div className="mt-4 rounded-2xl bg-ink text-paper p-5">
           <div className="flex items-center justify-between gap-3 mb-3">
             <div className="text-xs text-paper/50 uppercase tracking-wide">
-              {selected.mode} · {new Date(selected.created_at).toLocaleDateString()}
+              {selected.mode} · {selected.created_at.slice(0, 10)}
             </div>
             <button
               onClick={copy}
