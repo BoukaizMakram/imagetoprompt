@@ -9,7 +9,7 @@ const faqs = [
   },
   {
     q: "What image formats are supported?",
-    a: "JPG, PNG, and WEBP up to 8 MB. Most screenshots, photos, and exported renders work out of the box.",
+    a: "JPG, PNG, and WEBP up to 30 MB. Most screenshots, photos, and exported renders work out of the box.",
   },
   {
     q: "Which prompt style should I pick?",

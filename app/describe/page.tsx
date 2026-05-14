@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
-export const metadata = { title: "AI Describe Image — Prompto" };
+export const metadata = { title: "AI Describe Image" };
 
 export default function Page() {
   return (

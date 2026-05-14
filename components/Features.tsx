@@ -3,21 +3,25 @@ const items = [
     title: "Pixel-accurate captions",
     body: "Our vision model reads your image like a senior art director — colors, composition, mood, materials.",
     bg: "bg-accent-lilac",
+    image: "/pixel accurate.png",
   },
   {
     title: "Multiple prompt styles",
     body: "Get output tuned for Midjourney, Flux, or Stable Diffusion — or natural language for any model.",
     bg: "bg-accent-lime",
+    image: "/multiple models.png",
   },
   {
     title: "Paste, drop, upload",
     body: "Ctrl+V anywhere on the page, drag a file in, or browse — whichever fits your flow.",
     bg: "bg-accent-peach",
+    image: "/drag and drop.png",
   },
   {
     title: "Private by default",
-    body: "Images are processed for inference and never stored. No accounts required to try.",
+    body: "Your images are stored privately to your account so only you can see your history.",
     bg: "bg-accent-sky",
+    image: "/private.png",
   },
 ];
 
@@ -35,8 +39,18 @@ export function Features() {
       </div>
       <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {items.map((it) => (
-          <div key={it.title} className={`${it.bg} rounded-3xl p-6 aspect-[5/6] flex flex-col justify-between`}>
-            <div className="text-xs font-semibold text-ink/60">FEATURE</div>
+          <div
+            key={it.title}
+            className={`${it.bg} rounded-3xl p-6 flex flex-col gap-4`}
+          >
+            <div className="flex items-center justify-center h-36 sm:h-40">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={it.image}
+                alt=""
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
             <div>
               <h3 className="text-xl font-bold leading-tight">{it.title}</h3>
               <p className="text-sm text-ink/70 mt-2">{it.body}</p>

@@ -1,13 +1,13 @@
 import { LegalPage } from "@/components/LegalPage";
 
-export const metadata = { title: "Terms and Conditions — Prompto" };
+export const metadata = { title: "Terms and Conditions" };
 
 export default function Page() {
   return (
     <LegalPage title="Terms and Conditions">
       <p>
-        By using the Prompto service operated by Enprico, LLC, you agree to these Terms and
-        Conditions.
+        By using the imageprompting.org service operated by Enprico, LLC, you agree to these Terms
+        and Conditions.
       </p>
 
       <h2>Acceptable use</h2>

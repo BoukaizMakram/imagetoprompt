@@ -1,12 +1,12 @@
 import { LegalPage } from "@/components/LegalPage";
 
-export const metadata = { title: "Refund Policy — Prompto" };
+export const metadata = { title: "Refund Policy" };
 
 export default function Page() {
   return (
     <LegalPage title="Refund Policy">
       <p>
-        This policy applies to paid plans of the Prompto service operated by Enprico, LLC.
+        This policy applies to paid plans of the imageprompting.org service operated by Enprico, LLC.
       </p>
 
       <h2>Eligibility</h2>

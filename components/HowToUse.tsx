@@ -7,7 +7,7 @@ const steps = [
   {
     n: "Step 2",
     t: "Add your reference image",
-    d: "Drag a file directly onto the dashed box, click to browse, or press Ctrl+V (Cmd+V on Mac) anywhere on the page to paste from clipboard. JPG, PNG, or WEBP up to 8 MB.",
+    d: "Drag a file directly onto the dashed box, click to browse, or press Ctrl+V (Cmd+V on Mac) anywhere on the page to paste from clipboard. JPG, PNG, or WEBP up to 30 MB.",
   },
   {
     n: "Step 3",

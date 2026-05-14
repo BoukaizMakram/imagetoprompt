@@ -2,7 +2,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ContactForm } from "@/components/ContactForm";
 
-export const metadata = { title: "Contact Us — Prompto" };
+export const metadata = { title: "Contact Us" };
 
 export default function Page() {
   return (

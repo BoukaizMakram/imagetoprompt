@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
   }
 
-  const finalSubject = subject ? `[Prompto] ${subject}` : `[Prompto] New message from ${name}`;
+  const finalSubject = subject ? `[imageprompting.org] ${subject}` : `[imageprompting.org] New message from ${name}`;
   const text = [
     `From: ${name} <${email}>`,
     subject ? `Subject: ${subject}` : null,

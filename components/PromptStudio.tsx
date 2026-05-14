@@ -1,14 +1,54 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { compressImage } from "@/lib/compressImage";
+import { BulkUploader } from "./BulkUploader";
 
-type Mode = "general" | "flux" | "midjourney" | "stable-diffusion";
+type Mode =
+  | "general"
+  | "structured"
+  | "graphic-design"
+  | "json"
+  | "flux"
+  | "midjourney"
+  | "stable-diffusion";
 
-const MODES: { id: Mode; label: string; hint: string }[] = [
-  { id: "general", label: "General", hint: "Balanced, natural-language description." },
-  { id: "flux", label: "Flux", hint: "Cinematic, structured for Flux models." },
-  { id: "midjourney", label: "Midjourney", hint: "Stylized phrasing with --ar hints." },
-  { id: "stable-diffusion", label: "Stable Diffusion", hint: "Tag-heavy, comma-separated." },
+const MODE_HINTS: Record<Mode, string> = {
+  general: "Natural-language prompt, paste-ready.",
+  structured: "Subject, composition, lighting, mood — labeled and clean.",
+  "graphic-design": "Layout, typography, palette, brand-feel cues.",
+  json: "Machine-readable JSON of every detail.",
+  flux: "Single cinematic paragraph tuned for Flux.",
+  midjourney: "Comma-separated with --ar and style flags.",
+  "stable-diffusion": "Tag-style prompt for SD / ComfyUI / A1111.",
+};
+
+const MODE_GROUPS: { label: string; items: { id: Mode; label: string }[] }[] = [
+  {
+    label: "General",
+    items: [
+      { id: "general", label: "General Image Prompt" },
+      { id: "structured", label: "Structured Prompt" },
+    ],
+  },
+  {
+    label: "Specialty",
+    items: [
+      { id: "graphic-design", label: "Graphic Design" },
+      { id: "json", label: "JSON" },
+    ],
+  },
+  {
+    label: "Image generators",
+    items: [
+      { id: "flux", label: "Flux" },
+      { id: "midjourney", label: "Midjourney" },
+      { id: "stable-diffusion", label: "Stable Diffusion" },
+    ],
+  },
 ];
 
 const EXAMPLES = [
@@ -29,7 +69,16 @@ const EXAMPLES = [
   },
 ];
 
-export function PromptStudio() {
+export function PromptStudio({
+  signedIn = false,
+  credits = null,
+  unlimited = false,
+}: {
+  signedIn?: boolean;
+  credits?: number | null;
+  unlimited?: boolean;
+} = {}) {
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -39,6 +88,12 @@ export function PromptStudio() {
   const [streamed, setStreamed] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [outOfCredits, setOutOfCredits] = useState(false);
+  const [needsSignup, setNeedsSignup] = useState(false);
+  const [creditsRemaining, setCreditsRemaining] = useState<number | null>(credits);
+  const [tab, setTab] = useState<"single" | "bulk">("single");
+  const [bulkSeed, setBulkSeed] = useState<File[] | null>(null);
+  const bulkAllowed = signedIn;
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Rotating example carousel for the right pane when no image is uploaded
@@ -71,8 +126,8 @@ export function PromptStudio() {
       setError("Please upload an image file.");
       return;
     }
-    if (f.size > 8 * 1024 * 1024) {
-      setError("Image is too large. Maximum 8 MB.");
+    if (f.size > 30 * 1024 * 1024) {
+      setError("Image is too large. Maximum 30 MB.");
       return;
     }
     setError(null);
@@ -81,6 +136,31 @@ export function PromptStudio() {
     const url = URL.createObjectURL(f);
     setPreview(url);
   }, []);
+
+  // If multiple images come in at once (drop / multi-select) and the user is
+  // eligible for bulk, jump straight into bulk mode and seed the queue.
+  const handleFiles = useCallback(
+    (incoming: FileList | File[] | null | undefined) => {
+      if (!incoming) return;
+      const all = Array.from(incoming);
+      const images = all.filter((f) => f.type.startsWith("image/"));
+      if (images.length === 0) {
+        handleFile(all[0]);
+        return;
+      }
+      if (images.length > 1 && bulkAllowed) {
+        setError(null);
+        setPrompt("");
+        setFile(null);
+        setPreview(null);
+        setBulkSeed(images);
+        setTab("bulk");
+        return;
+      }
+      handleFile(images[0]);
+    },
+    [bulkAllowed, handleFile]
+  );
 
   // Paste support (Ctrl+V)
   useEffect(() => {
@@ -105,15 +185,69 @@ export function PromptStudio() {
     if (!file) return;
     setLoading(true);
     setError(null);
+    setOutOfCredits(false);
+    setNeedsSignup(false);
     setPrompt("");
     try {
-      const fd = new FormData();
-      fd.append("image", file);
-      fd.append("mode", mode);
-      const res = await fetch("/api/generate", { method: "POST", body: fd });
+      // 0. Downscale to a JPEG ≤ 1280px on the long edge so the LLaVA
+      //    request stays well under Cloudflare's ~5 MB payload limit.
+      //    LLaVA's vision encoder runs at 336×336 internally, so 1280
+      //    is more than enough fidelity.
+      const compressed = await compressImage(file, 1280, 0.85);
+
+      // 1. Ask the server for a signed upload URL.
+      const urlRes = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ext: "jpg" }),
+      });
+      const urlData = await urlRes.json();
+      if (urlData?.code === "needs_signup") {
+        setNeedsSignup(true);
+        throw new Error(urlData?.error || "Sign up to keep generating.");
+      }
+      if (urlRes.status === 401) {
+        router.push("/login?next=/image-to-prompt");
+        return;
+      }
+      if (!urlRes.ok || !urlData?.path || !urlData?.token) {
+        throw new Error(urlData?.error || "Could not start upload.");
+      }
+
+      // 2. Upload the compressed bytes directly to Supabase Storage.
+      const supabase = createSupabaseBrowserClient();
+      const { error: upErr } = await supabase.storage
+        .from("prompt-images")
+        .uploadToSignedUrl(urlData.path, urlData.token, compressed, {
+          contentType: "image/jpeg",
+          upsert: false,
+        });
+      if (upErr) throw new Error(upErr.message || "Upload failed.");
+
+      // 3. Ask the server to generate the prompt from that uploaded image.
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imagePath: urlData.path, mode }),
+      });
       const data = await res.json();
+      if (data?.code === "needs_signup") {
+        setNeedsSignup(true);
+        throw new Error(data?.error || "Sign up to keep generating.");
+      }
+      if (res.status === 401) {
+        router.push("/login?next=/image-to-prompt");
+        return;
+      }
+      if (res.status === 402 || data?.code === "out_of_credits") {
+        setOutOfCredits(true);
+        throw new Error(data?.error || "You're out of credits.");
+      }
       if (!res.ok) throw new Error(data?.error || "Generation failed");
       setPrompt(data.prompt as string);
+      if (typeof data.creditsRemaining === "number") {
+        setCreditsRemaining(data.creditsRemaining);
+      }
     } catch (e: any) {
       setError(e.message || "Something went wrong.");
     } finally {
@@ -156,6 +290,38 @@ export function PromptStudio() {
         </p>
       </div>
 
+      {signedIn && (
+        <div className="mb-4 flex items-center justify-between gap-3 flex-wrap rounded-2xl border border-black/5 bg-white px-4 py-2.5 text-sm">
+          <div className="text-ink/70">
+            {unlimited ? (
+              <>
+                Plan: <strong className="text-ink">Unlimited</strong> this month
+              </>
+            ) : (
+              <>
+                Credits left this month:{" "}
+                <strong className="text-ink">{creditsRemaining ?? 0}</strong>
+              </>
+            )}
+          </div>
+          <Link href="/pricing" className="text-ink underline-offset-2 hover:underline text-xs font-semibold">
+            Buy more →
+          </Link>
+        </div>
+      )}
+
+      {tab === "bulk" ? (
+        <BulkUploader
+          creditsRemaining={creditsRemaining}
+          unlimited={unlimited}
+          onCreditsChanged={setCreditsRemaining}
+          initialFiles={bulkSeed}
+          onBackToSingle={() => {
+            setBulkSeed(null);
+            setTab("single");
+          }}
+        />
+      ) : (
       <div className="grid lg:grid-cols-2 gap-5">
         {/* LEFT — DROP ZONE */}
         <div className="bg-white rounded-3xl border border-black/5 shadow-[0_1px_0_rgba(0,0,0,0.03),0_20px_40px_-20px_rgba(0,0,0,0.08)] p-5 sm:p-6">
@@ -177,7 +343,7 @@ export function PromptStudio() {
             onDrop={(e) => {
               e.preventDefault();
               setDragging(false);
-              handleFile(e.dataTransfer.files?.[0]);
+              handleFiles(e.dataTransfer.files);
             }}
             className={`relative block rounded-2xl border-2 border-dashed transition-all cursor-pointer overflow-hidden
               ${dragging ? "border-ink bg-accent-lilac/30" : "border-black/10 hover:border-ink/30 bg-paper"}
@@ -188,8 +354,12 @@ export function PromptStudio() {
               ref={inputRef}
               type="file"
               accept="image/*"
+              multiple={bulkAllowed}
               className="sr-only"
-              onChange={(e) => handleFile(e.target.files?.[0])}
+              onChange={(e) => {
+                handleFiles(e.target.files);
+                if (inputRef.current) inputRef.current.value = "";
+              }}
             />
             {preview ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -210,27 +380,49 @@ export function PromptStudio() {
                     <kbd className="px-1.5 py-0.5 rounded bg-ink/5 border border-black/10 text-xs">V</kbd>
                   </div>
                 </div>
-                <div className="text-xs text-ink/40">JPG, PNG, WEBP · up to 8 MB</div>
+                <div className="text-xs text-ink/40">JPG, PNG, WEBP · up to 30 MB</div>
               </div>
             )}
           </label>
 
-          {/* Mode chips */}
+          {/* AI model picker */}
           <div className="mt-5">
-            <div className="text-xs font-semibold text-ink/60 mb-2">Prompt style</div>
-            <div className="flex flex-wrap gap-2">
-              {MODES.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => setMode(m.id)}
-                  className={`px-3 py-1.5 text-sm rounded-full border transition-all
-                    ${mode === m.id ? "bg-ink text-paper border-ink" : "bg-white text-ink/70 border-black/10 hover:border-ink/30"}`}
-                >
-                  {m.label}
-                </button>
-              ))}
+            <label className="text-xs font-semibold text-ink/60 mb-2 block" htmlFor="ai-model">
+              Select AI Model
+            </label>
+            <div className="relative">
+              <select
+                id="ai-model"
+                value={mode}
+                onChange={(e) => setMode(e.target.value as Mode)}
+                className="w-full appearance-none px-4 py-3 pr-10 rounded-2xl bg-paper border border-black/10 text-[15px] font-medium text-ink focus:border-ink focus:outline-none cursor-pointer"
+              >
+                {MODE_GROUPS.map((g) => (
+                  <optgroup key={g.label} label={g.label}>
+                    {g.items.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+              <svg
+                className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
             </div>
-            <p className="text-xs text-ink/45 mt-2">{MODES.find((m) => m.id === mode)?.hint}</p>
+            <p className="text-xs text-ink/45 mt-2">{MODE_HINTS[mode]}</p>
           </div>
 
           {/* CTA */}
@@ -250,6 +442,22 @@ export function PromptStudio() {
             )}
           </button>
           {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+          {needsSignup && (
+            <Link
+              href="/login?next=/image-to-prompt"
+              className="mt-3 inline-flex items-center px-4 py-2 rounded-full bg-accent-lime text-ink text-sm font-semibold hover:opacity-90"
+            >
+              Sign up — 2 more free tries →
+            </Link>
+          )}
+          {outOfCredits && (
+            <Link
+              href="/pricing"
+              className="mt-3 inline-flex items-center px-4 py-2 rounded-full bg-accent-lime text-ink text-sm font-semibold hover:opacity-90"
+            >
+              Buy a credit pack →
+            </Link>
+          )}
         </div>
 
         {/* RIGHT — OUTPUT / CAROUSEL */}
@@ -312,7 +520,9 @@ export function PromptStudio() {
               <div className="h-3 rounded shimmer w-full opacity-20" />
               <div className="h-3 rounded shimmer w-5/6 opacity-20" />
               <div className="h-3 rounded shimmer w-2/3 opacity-20" />
-              <p className="text-xs text-paper/50 mt-6">Analyzing your image…</p>
+              <p className="mt-7 text-base sm:text-lg font-semibold tracking-tight text-sweep">
+                Analyzing your image…
+              </p>
             </div>
           )}
 
@@ -345,6 +555,7 @@ export function PromptStudio() {
           )}
         </div>
       </div>
+      )}
     </section>
   );
 }
@@ -365,3 +576,4 @@ function Sparkle() {
     </svg>
   );
 }
+

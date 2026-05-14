@@ -1,13 +1,13 @@
 import { LegalPage } from "@/components/LegalPage";
 
-export const metadata = { title: "About Us — Prompto" };
+export const metadata = { title: "About Us" };
 
 export default function Page() {
   return (
     <LegalPage title="About Us">
       <p>
-        Prompto is a small studio building practical tools for designers, illustrators, and
-        creators who use AI image generators in their daily work.
+        imageprompting.org is a small studio building practical tools for designers, illustrators,
+        and creators who use AI image generators in their daily work.
       </p>
       <p>
         Our Image to Prompt tool is built around a simple idea: you already have references — you
@@ -15,7 +15,7 @@ export default function Page() {
         iterate.
       </p>
       <p>
-        Prompto is operated by <strong>Enprico, LLC</strong>.
+        imageprompting.org is operated by <strong>Enprico, LLC</strong>.
       </p>
     </LegalPage>
   );

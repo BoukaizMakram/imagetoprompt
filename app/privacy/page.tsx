@@ -1,13 +1,13 @@
 import { LegalPage } from "@/components/LegalPage";
 
-export const metadata = { title: "Privacy Policy — Prompto" };
+export const metadata = { title: "Privacy Policy" };
 
 export default function Page() {
   return (
     <LegalPage title="Privacy Policy">
       <p>
         This Privacy Policy describes how Enprico, LLC (&ldquo;we&rdquo;, &ldquo;us&rdquo;) handles
-        information when you use the Prompto Image to Prompt service.
+        information when you use the imageprompting.org Image to Prompt service.
       </p>
 
       <h2>Information we process</h2>
