@@ -11,6 +11,13 @@ export const metadata = {
 
 const posts = [
   {
+    slug: "complete-guide-image-to-prompt",
+    title: "The Complete Beginner's Guide to Image-to-Prompt AI (2026)",
+    date: "2026-05-14",
+    excerpt:
+      "Everything you need to know about image-to-prompt AI: how it works, which models it supports, when to use it, and how to get started free.",
+  },
+  {
     slug: "how-to-get-prompt-from-ai-image",
     title: "How to Get a Prompt from Any AI-Generated Image",
     date: "2025-05-10",

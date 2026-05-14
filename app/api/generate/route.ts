@@ -12,7 +12,8 @@ type Mode =
   | "json"
   | "flux"
   | "midjourney"
-  | "stable-diffusion";
+  | "stable-diffusion"
+  | "gpt-image-2";
 
 const LLAVA = "@cf/llava-hf/llava-1.5-7b-hf";
 const LLAMA = "@cf/meta/llama-3.1-8b-instruct";
@@ -62,6 +63,8 @@ Use this exact schema and fill EVERY field with rich, concrete, multi-word promp
   midjourney: `Rewrite the caption above as a Midjourney prompt. Output ONE single line, comma-separated, starting with the subject: subject, environment, style, lighting, mood, palette, medium, camera/lens. End the line with sensible parameters like --ar 16:9 --style raw --v 6. No quotes, no markdown, no preamble. Start directly with the subject phrase, never with "The image".`,
 
   "stable-diffusion": `Rewrite the caption above as a Stable Diffusion prompt. Output ONE single line of comma-separated tags starting with the subject, followed by attributes, environment, lighting, style, medium, and quality tags (masterpiece, ultra detailed, 8k, sharp focus). No quotes, no markdown, no preamble. Start directly with the subject tag.`,
+
+  "gpt-image-2": `Rewrite the caption above as a prompt for OpenAI's GPT Image 2 model. Output ONE single precise paragraph in natural language — complete sentences, not a keyword list. GPT Image 2 responds best to detailed prose that specifies: subject and action, exact environment and setting, lighting quality and direction, color palette and contrast, mood and atmosphere, visual style or medium (photography, illustration, painting, etc.), and any compositional choices (angle, framing, depth). If text needs to appear in the image, include it in quotes. Do NOT say "The image shows". Output ONLY the prompt, no preamble, no markdown.`,
 };
 
 export async function POST(req: NextRequest) {

@@ -14,7 +14,8 @@ type Mode =
   | "json"
   | "flux"
   | "midjourney"
-  | "stable-diffusion";
+  | "stable-diffusion"
+  | "gpt-image-2";
 
 const MODE_HINTS: Record<Mode, string> = {
   general: "Natural-language prompt, paste-ready.",
@@ -24,6 +25,7 @@ const MODE_HINTS: Record<Mode, string> = {
   flux: "Single cinematic paragraph tuned for Flux.",
   midjourney: "Comma-separated with --ar and style flags.",
   "stable-diffusion": "Tag-style prompt for SD / ComfyUI / A1111.",
+  "gpt-image-2": "Natural prose optimized for GPT Image 2's reasoning engine.",
 };
 
 const MODE_GROUPS: { label: string; items: { id: Mode; label: string }[] }[] = [
@@ -44,6 +46,7 @@ const MODE_GROUPS: { label: string; items: { id: Mode; label: string }[] }[] = [
   {
     label: "Image generators",
     items: [
+      { id: "gpt-image-2", label: "GPT Image 2" },
       { id: "flux", label: "Flux" },
       { id: "midjourney", label: "Midjourney" },
       { id: "stable-diffusion", label: "Stable Diffusion" },
