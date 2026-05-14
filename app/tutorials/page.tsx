@@ -1,7 +1,11 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
-export const metadata = { title: "Tutorials" };
+export const metadata = {
+  title: "Tutorials — Image to Prompt Guides",
+  description:
+    "Step-by-step guides on using image-to-prompt for Midjourney, Stable Diffusion, and DALL-E. Learn how to get accurate prompts from any reference image.",
+};
 
 export default function Page() {
   return (

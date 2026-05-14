@@ -2,7 +2,11 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ContactForm } from "@/components/ContactForm";
 
-export const metadata = { title: "Contact Us" };
+export const metadata = {
+  title: "Contact Us",
+  description:
+    "Have a question, bug report, or feedback about imageprompting.org? Send us a note — we reply within two business days.",
+};
 
 export default function Page() {
   return (

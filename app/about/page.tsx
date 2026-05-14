@@ -1,6 +1,10 @@
 import { LegalPage } from "@/components/LegalPage";
 
-export const metadata = { title: "About Us" };
+export const metadata = {
+  title: "About Us",
+  description:
+    "imageprompting.org is a practical AI tool for designers and creators. Drop an image, get a prompt — built by Enprico, LLC.",
+};
 
 export default function Page() {
   return (

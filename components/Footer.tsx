@@ -3,8 +3,21 @@ import { Logo } from "./Logo";
 
 const columns = [
   {
-    title: "Support",
+    title: "Tools",
     links: [
+      { label: "Image to Prompt", href: "/image-to-prompt" },
+      { label: "Midjourney Prompt", href: "/image-to-prompt/midjourney" },
+      { label: "Stable Diffusion Prompt", href: "/image-to-prompt/stable-diffusion" },
+      { label: "Flux Prompt", href: "/image-to-prompt/flux" },
+      { label: "DALL-E Prompt", href: "/image-to-prompt/dalle" },
+    ],
+  },
+  {
+    title: "Resources",
+    links: [
+      { label: "Blog", href: "/blog" },
+      { label: "Tutorials", href: "/tutorials" },
+      { label: "Pricing", href: "/pricing" },
       { label: "Contact Us", href: "/contact" },
       { label: "About Us", href: "/about" },
     ],
@@ -23,7 +36,7 @@ export function Footer() {
   return (
     <footer className="border-t border-black/5 mt-10">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 py-14">
-        <div className="grid md:grid-cols-[1.4fr_1fr_1fr] gap-10 md:gap-16">
+        <div className="grid md:grid-cols-[1.4fr_1fr_1fr_1fr] gap-10 md:gap-12">
           <div className="space-y-4">
             <Logo />
             <p className="text-sm text-ink/55 max-w-xs">

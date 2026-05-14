@@ -73,16 +73,18 @@ export function PromptStudio({
   signedIn = false,
   credits = null,
   unlimited = false,
+  defaultMode = "general",
 }: {
   signedIn?: boolean;
   credits?: number | null;
   unlimited?: boolean;
+  defaultMode?: Mode;
 } = {}) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
-  const [mode, setMode] = useState<Mode>("general");
+  const [mode, setMode] = useState<Mode>(defaultMode);
   const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState<string>("");
   const [streamed, setStreamed] = useState<string>("");

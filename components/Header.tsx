@@ -5,9 +5,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const nav = [
   { label: "Image to Prompt", href: "/image-to-prompt" },
-  { label: "Prompt Generator", href: "/prompt-generator" },
-  { label: "AI Describe", href: "/describe" },
   { label: "Pricing", href: "/pricing" },
+  { label: "Blog", href: "/blog" },
   { label: "Tutorials", href: "/tutorials" },
 ];
 

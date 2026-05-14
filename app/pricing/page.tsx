@@ -5,9 +5,9 @@ import { BuyButton } from "@/components/BuyButton";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata = {
-  title: "Pricing — pay once, credits reset each month",
+  title: "Pricing — Monthly Credit Plans",
   description:
-    "Simple monthly credit packs for image-to-prompt. No subscription — credits expire at the end of the month.",
+    "Simple monthly plans for image-to-prompt. Starter, Pro, and Unlimited tiers. Cancel anytime.",
 };
 
 export default async function PricingPage() {
