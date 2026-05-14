@@ -6,6 +6,7 @@ import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/s
 import { currentBillingMonth } from "@/lib/plans";
 import { SignOutButton } from "@/components/SignOutButton";
 import { GenerationsGrid } from "@/components/GenerationsGrid";
+import { ModelPreference } from "@/components/ModelPreference";
 
 export const metadata = { title: "Your account" };
 export const dynamic = "force-dynamic";
@@ -26,7 +27,7 @@ export default async function AccountPage({
   const service = createSupabaseServiceClient();
   const billingMonth = currentBillingMonth();
 
-  const [{ data: balance }, { data: purchases }, { data: generations, error: genError }] = await Promise.all([
+  const [{ data: balance }, { data: purchases }, { data: generations, error: genError }, { data: profile }] = await Promise.all([
     service
       .from("credit_balances")
       .select("credits_remaining, unlimited")
@@ -45,6 +46,11 @@ export default async function AccountPage({
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(24),
+    service
+      .from("profiles")
+      .select("preferred_model")
+      .eq("id", user.id)
+      .maybeSingle(),
   ]);
 
   if (genError) {
@@ -53,6 +59,7 @@ export default async function AccountPage({
 
   const isUnlimited = !!balance?.unlimited;
   const credits = balance?.credits_remaining ?? 0;
+  const preferredModel = (profile?.preferred_model ?? "standard") as "standard" | "enhanced" | "premium";
 
   // Sign URLs for each thumbnail (1 hour). The bucket is private.
   const history = await Promise.all(
@@ -110,6 +117,14 @@ export default async function AccountPage({
             </Link>
           </div>
         </div>
+
+        <h2 className="mt-12 mb-4 text-sm font-semibold text-ink/70 uppercase tracking-wide">
+          AI model
+        </h2>
+        <p className="mb-4 text-sm text-ink/60">
+          Choose the model used for every generation. Higher tiers produce better composition and detail but cost more credits per use.
+        </p>
+        <ModelPreference initial={preferredModel} />
 
         <h2 className="mt-12 mb-4 text-sm font-semibold text-ink/70 uppercase tracking-wide">
           Your generations

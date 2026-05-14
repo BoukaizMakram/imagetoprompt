@@ -32,16 +32,27 @@ export default async function Page() {
 
   let credits: number | null = null;
   let unlimited = false;
+  let preferredTier: "standard" | "enhanced" | "premium" = "standard";
   if (user) {
     const service = createSupabaseServiceClient();
-    const { data } = await service
-      .from("credit_balances")
-      .select("credits_remaining, unlimited")
-      .eq("user_id", user.id)
-      .eq("billing_month", currentBillingMonth())
-      .maybeSingle();
-    credits = data?.credits_remaining ?? 0;
-    unlimited = !!data?.unlimited;
+    const [{ data: balance }, { data: profile }] = await Promise.all([
+      service
+        .from("credit_balances")
+        .select("credits_remaining, unlimited")
+        .eq("user_id", user.id)
+        .eq("billing_month", currentBillingMonth())
+        .maybeSingle(),
+      service
+        .from("profiles")
+        .select("preferred_model")
+        .eq("id", user.id)
+        .maybeSingle(),
+    ]);
+    credits = balance?.credits_remaining ?? 0;
+    unlimited = !!balance?.unlimited;
+    if (profile?.preferred_model && ["standard", "enhanced", "premium"].includes(profile.preferred_model)) {
+      preferredTier = profile.preferred_model as typeof preferredTier;
+    }
   }
 
   const softwareSchema = {
@@ -75,7 +86,7 @@ export default async function Page() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <Header />
-      <PromptStudio signedIn={!!user} credits={credits} unlimited={unlimited} />
+      <PromptStudio signedIn={!!user} credits={credits} unlimited={unlimited} preferredTier={preferredTier} />
       <Features />
       <HowItWorks />
       <Testimonials />

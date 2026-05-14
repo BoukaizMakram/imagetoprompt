@@ -17,6 +17,20 @@ type Mode =
   | "stable-diffusion"
   | "gpt-image-2";
 
+type Tier = "standard" | "enhanced" | "premium";
+
+const UPGRADE_TIER: Record<Tier, Tier | null> = {
+  standard: "enhanced",
+  enhanced: "premium",
+  premium: null,
+};
+
+const UPGRADE_CREDITS: Record<Tier, number> = {
+  standard: 2,
+  enhanced: 3,
+  premium: 0,
+};
+
 const MODE_HINTS: Record<Mode, string> = {
   general: "Natural-language prompt, paste-ready.",
   structured: "Subject, composition, lighting, mood — labeled and clean.",
@@ -77,11 +91,13 @@ export function PromptStudio({
   credits = null,
   unlimited = false,
   defaultMode = "general",
+  preferredTier = "standard",
 }: {
   signedIn?: boolean;
   credits?: number | null;
   unlimited?: boolean;
   defaultMode?: Mode;
+  preferredTier?: Tier;
 } = {}) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
@@ -98,6 +114,7 @@ export function PromptStudio({
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(credits);
   const [tab, setTab] = useState<"single" | "bulk">("single");
   const [bulkSeed, setBulkSeed] = useState<File[] | null>(null);
+  const [lastUsedTier, setLastUsedTier] = useState<Tier>(preferredTier);
   const bulkAllowed = signedIn;
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -186,13 +203,14 @@ export function PromptStudio({
     return () => window.removeEventListener("paste", onPaste);
   }, [handleFile]);
 
-  const generate = async () => {
+  const generate = async (tierOverride?: Tier) => {
     if (!file) return;
     setLoading(true);
     setError(null);
     setOutOfCredits(false);
     setNeedsSignup(false);
     setPrompt("");
+    const activeTier = tierOverride ?? preferredTier;
     try {
       // 0. Downscale to a JPEG ≤ 1280px on the long edge so the LLaVA
       //    request stays well under Cloudflare's ~5 MB payload limit.
@@ -233,7 +251,7 @@ export function PromptStudio({
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imagePath: urlData.path, mode }),
+        body: JSON.stringify({ imagePath: urlData.path, mode, tier: activeTier }),
       });
       const data = await res.json();
       if (data?.code === "needs_signup") {
@@ -250,6 +268,7 @@ export function PromptStudio({
       }
       if (!res.ok) throw new Error(data?.error || "Generation failed");
       setPrompt(data.prompt as string);
+      setLastUsedTier(activeTier);
       if (typeof data.creditsRemaining === "number") {
         setCreditsRemaining(data.creditsRemaining);
       }
@@ -432,7 +451,7 @@ export function PromptStudio({
 
           {/* CTA */}
           <button
-            onClick={generate}
+            onClick={() => generate()}
             disabled={!file || loading}
             className="mt-6 w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-ink text-paper font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition"
           >
@@ -446,6 +465,7 @@ export function PromptStudio({
               </>
             )}
           </button>
+          {/* hidden — kept to satisfy onClick type (generate called directly below) */}
           {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
           {needsSignup && (
             <Link
@@ -543,11 +563,21 @@ export function PromptStudio({
                   {copied ? "Copied ✓" : "Copy prompt"}
                 </button>
                 <button
-                  onClick={generate}
+                  onClick={() => generate()}
                   className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/10 text-paper text-sm hover:bg-white/20 border border-white/10"
                 >
                   Regenerate
                 </button>
+                {signedIn && UPGRADE_TIER[lastUsedTier] && (
+                  <button
+                    onClick={() => generate(UPGRADE_TIER[lastUsedTier]!)}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-accent-lilac/20 text-paper text-sm hover:bg-accent-lilac/30 border border-accent-lilac/30"
+                    title={`Use a higher-quality model — costs ${UPGRADE_CREDITS[lastUsedTier]} credits`}
+                  >
+                    ✦ Better model
+                    <span className="text-paper/60 text-xs">+{UPGRADE_CREDITS[lastUsedTier]} creds</span>
+                  </button>
+                )}
               </div>
             </div>
           )}
