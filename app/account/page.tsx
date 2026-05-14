@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/supabase/server";
 import { currentBillingMonth } from "@/lib/plans";
 import { SignOutButton } from "@/components/SignOutButton";
+import { GenerationsGrid } from "@/components/GenerationsGrid";
 
 export const metadata = { title: "Your account" };
 export const dynamic = "force-dynamic";
@@ -113,33 +114,13 @@ export default async function AccountPage({
         <h2 className="mt-12 mb-4 text-sm font-semibold text-ink/70 uppercase tracking-wide">
           Your generations
         </h2>
+        {genError && (
+          <p className="mb-4 text-sm text-red-600 bg-red-50 rounded-2xl px-4 py-3">
+            DB error: {genError.message}
+          </p>
+        )}
         {history.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {history.map((g) => (
-              <li
-                key={g.id}
-                className="rounded-2xl border border-black/5 bg-white overflow-hidden flex flex-col"
-              >
-                {g.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={g.url}
-                    alt=""
-                    className="w-full aspect-square object-cover bg-paper"
-                  />
-                ) : (
-                  <div className="w-full aspect-square bg-paper" />
-                )}
-                <div className="p-3 flex flex-col gap-1">
-                  <div className="flex items-center justify-between gap-2 text-[11px] text-ink/50">
-                    <span className="uppercase tracking-wide">{g.mode}</span>
-                    <span>{new Date(g.created_at).toLocaleDateString()}</span>
-                  </div>
-                  <p className="text-xs text-ink/75 line-clamp-3 leading-relaxed">{g.prompt}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <GenerationsGrid items={history} />
         ) : (
           <p className="text-sm text-ink/55">No generations yet. Make your first one!</p>
         )}

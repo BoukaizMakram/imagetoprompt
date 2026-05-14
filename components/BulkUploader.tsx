@@ -137,13 +137,12 @@ export function BulkUploader({
         `You only have ${available} credit${available === 1 ? "" : "s"} — ${available} image${available === 1 ? "" : "s"} will be processed. Buy more credits to run the full batch.`
       );
     }
+
     const supabase = createSupabaseBrowserClient();
 
-    for (const item of pending) {
-      setSelectedId(item.id);
+    const processOne = async (item: QueueItem) => {
+      patchItem(item.id, { status: "uploading", error: undefined, prompt: undefined });
       try {
-        patchItem(item.id, { status: "uploading", error: undefined, prompt: undefined });
-
         const compressed = await compressImage(item.file, 1280, 0.85);
 
         const urlRes = await fetch("/api/upload-url", {
@@ -174,8 +173,8 @@ export function BulkUploader({
         const data = await res.json();
         if (res.status === 402 || data?.code === "out_of_credits") {
           patchItem(item.id, { status: "error", error: "Out of credits." });
-          setGlobalError("You've run out of credits. Buy more to continue the queue.");
-          break;
+          setGlobalError("You've run out of credits. Buy more credits to process the rest.");
+          return;
         }
         if (!res.ok || !data?.prompt) {
           throw new Error(data?.error || "Generation failed.");
@@ -185,11 +184,14 @@ export function BulkUploader({
         if (typeof data.creditsRemaining === "number") {
           onCreditsChanged(data.creditsRemaining);
         }
+        // Auto-select the first result that comes back so the right pane shows something.
+        setSelectedId((cur) => cur === item.id || !cur ? item.id : cur);
       } catch (e: any) {
         patchItem(item.id, { status: "error", error: e?.message || "Failed." });
       }
-    }
+    };
 
+    await Promise.allSettled(pending.map(processOne));
     setRunning(false);
   };
 
