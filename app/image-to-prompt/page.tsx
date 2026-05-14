@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Header } from "@/components/Header";
 import { PromptStudio } from "@/components/PromptStudio";
 import { Features } from "@/components/Features";
@@ -86,7 +87,9 @@ export default async function Page() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <Header />
-      <PromptStudio signedIn={!!user} credits={credits} unlimited={unlimited} preferredTier={preferredTier} />
+      <Suspense>
+        <PromptStudio signedIn={!!user} credits={credits} unlimited={unlimited} preferredTier={preferredTier} />
+      </Suspense>
       <Features />
       <HowItWorks />
       <Testimonials />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/compressImage";
@@ -100,6 +100,9 @@ export function PromptStudio({
   preferredTier?: Tier;
 } = {}) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pendingAutoGenerate = useRef(false);
+  const loadedFromParam = useRef(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -202,6 +205,36 @@ export function PromptStudio({
     window.addEventListener("paste", onPaste);
     return () => window.removeEventListener("paste", onPaste);
   }, [handleFile]);
+
+  // Load image from ?imageUrl= query param (e.g. "Use this image again" from history)
+  useEffect(() => {
+    const imageUrl = searchParams?.get("imageUrl");
+    if (!imageUrl || loadedFromParam.current) return;
+    loadedFromParam.current = true;
+    const modeParam = searchParams.get("mode");
+    if (modeParam && Object.keys(MODE_HINTS).includes(modeParam)) {
+      setMode(modeParam as Mode);
+    }
+    const shouldAutoGenerate = !!searchParams.get("autoGenerate");
+    fetch(imageUrl)
+      .then((r) => r.blob())
+      .then((blob) => {
+        const ext = blob.type.split("/")[1] || "jpg";
+        const f = new File([blob], `history.${ext}`, { type: blob.type });
+        if (shouldAutoGenerate) pendingAutoGenerate.current = true;
+        handleFile(f);
+      })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  // Trigger auto-generate once the pre-loaded file is ready
+  useEffect(() => {
+    if (!pendingAutoGenerate.current || !file) return;
+    pendingAutoGenerate.current = false;
+    generate();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file]);
 
   const generate = async (tierOverride?: Tier) => {
     if (!file) return;
@@ -328,9 +361,14 @@ export function PromptStudio({
               </>
             )}
           </div>
-          <Link href="/pricing" className="text-ink underline-offset-2 hover:underline text-xs font-semibold">
-            Buy more →
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/account#generations" className="text-ink underline-offset-2 hover:underline text-xs font-semibold">
+              View history →
+            </Link>
+            <Link href="/pricing" className="text-ink underline-offset-2 hover:underline text-xs font-semibold">
+              Buy more →
+            </Link>
+          </div>
         </div>
       )}
 
