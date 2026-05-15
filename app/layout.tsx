@@ -9,7 +9,12 @@ export const metadata: Metadata = {
     template: "%s | imageprompting.org",
   },
   description:
-    "Turn any image into a detailed AI prompt instantly. Free to try. Works with Midjourney, ChatGPT Images, Stable Diffusion, and Flux.",
+    "Drop any image and get a perfect AI prompt in seconds. Boost your creative workflow with model-specific output for Midjourney, Flux, Stable Diffusion, and more — free to try.",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
   keywords: [
     "image to prompt",
     "image to prompt generator",
@@ -25,7 +30,7 @@ export const metadata: Metadata = {
     siteName: "imageprompting.org",
     title: "Image to Prompt Generator — Free AI Tool",
     description:
-      "Turn any image into a detailed AI prompt instantly. Free to try. Works with Midjourney, ChatGPT Images, Stable Diffusion, and Flux.",
+      "Drop any image and get a perfect AI prompt in seconds. Model-specific output for Midjourney, Flux, Stable Diffusion, and more.",
     url: "https://imageprompting.org",
     images: [{ url: "/og.png", width: 1200, height: 630, alt: "imageprompting.org — Image to Prompt" }],
   },
