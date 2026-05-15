@@ -331,17 +331,17 @@ export function PromptStudio({
     <section className="max-w-7xl mx-auto px-5 sm:px-8 pt-10 sm:pt-16 pb-20">
       <div className="text-center mb-10 sm:mb-14">
         <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-balance leading-[1.02]">
-          <span className="relative z-10">Turn any image into</span>{" "}
-          <span className="relative inline-block -rotate-1 px-3">
-            <span className="absolute inset-0 bg-accent-lilac/60 backdrop-blur-md rounded-2xl -z-20" aria-hidden />
+          <span className="relative z-10 hero-w1 inline-block">Turn any image into</span>{" "}
+          <span className="relative inline-block -rotate-1 px-3 hero-w2">
+            <span className="absolute inset-0 bg-accent-lilac/60 backdrop-blur-md rounded-2xl -z-20 hero-bg" aria-hidden />
             <span className="relative z-10">a perfect</span>
           </span>{" "}
-          <span className="relative inline-block rotate-1 px-3">
-            <span className="absolute inset-0 bg-accent-lime/60 backdrop-blur-md rounded-2xl -z-20" aria-hidden />
+          <span className="relative inline-block rotate-1 px-3 hero-w3">
+            <span className="absolute inset-0 bg-accent-lime/60 backdrop-blur-md rounded-2xl -z-20 hero-bg" aria-hidden />
             <span className="relative z-10">prompt</span>
           </span>
         </h1>
-        <p className="mt-5 text-ink/60 max-w-2xl mx-auto text-balance">
+        <p className="mt-5 text-ink/60 max-w-2xl mx-auto text-balance hero-sub">
           Drop, paste, or upload any picture. Get a detailed, ready-to-use prompt you can feed
           straight back into your favorite AI image generator.
         </p>
