@@ -53,7 +53,7 @@ export default function Page() {
             <Link href="/image-to-prompt" className="underline text-ink">
               imageprompting.org
             </Link>
-            , select the target model (Midjourney, Stable Diffusion, Flux, or DALL-E), and generate
+            , select the target model (Midjourney, Stable Diffusion, Flux, or ChatGPT Images), and generate
             a prompt. The tool analyzes the visual content — subject, composition, lighting, color
             palette, and style — and writes a prompt calibrated to how that specific model
             interprets language.
@@ -84,7 +84,7 @@ export default function Page() {
             CLIP Interrogation (available in AUTOMATIC1111 via the Interrogate button) uses a
             CLIP vision model to describe an image in terms of booru-style tags commonly used in
             Stable Diffusion prompts. It's useful for SD workflows but produces keyword lists
-            rather than coherent descriptions — not ideal for Midjourney or DALL-E.
+            rather than coherent descriptions — not ideal for Midjourney or ChatGPT Images.
           </p>
 
           <h2 className="text-2xl font-extrabold text-ink mt-10 mb-4">Getting the best results</h2>

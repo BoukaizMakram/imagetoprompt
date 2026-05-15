@@ -49,7 +49,7 @@ export default function Page() {
         name: "What is image-to-prompt?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Image-to-prompt is an AI process that analyzes a visual image and generates a text prompt that describes it in the language a specific AI image model understands. Instead of writing a prompt from scratch, you upload an image — a reference photo, a piece of artwork, a screenshot — and the tool produces a ready-to-use prompt calibrated for Midjourney, Stable Diffusion, Flux, DALL-E, or another target model. It is sometimes called reverse prompt engineering.",
+          text: "Image-to-prompt is an AI process that analyzes a visual image and generates a text prompt that describes it in the language a specific AI image model understands. Instead of writing a prompt from scratch, you upload an image — a reference photo, a piece of artwork, a screenshot — and the tool produces a ready-to-use prompt calibrated for Midjourney, Stable Diffusion, Flux, ChatGPT Images, or another target model. It is sometimes called reverse prompt engineering.",
         },
       },
       {
@@ -65,7 +65,7 @@ export default function Page() {
         name: "Which AI image models does image-to-prompt support?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "imageprompting.org supports Midjourney, Stable Diffusion (SD 1.5, SDXL, SD 3), Flux (Schnell and Dev), GPT Image 2, and DALL-E 3. Each output mode is tuned to the specific syntax and vocabulary that model responds to best — Midjourney prompts include parameter flags like --ar and --stylize, while Stable Diffusion prompts include quality tags and negative prompt suggestions.",
+          text: "imageprompting.org supports Midjourney, Stable Diffusion (SD 1.5, SDXL, SD 3), Flux (Schnell and Dev), GPT Image 2, and ChatGPT Images. Each output mode is tuned to the specific syntax and vocabulary that model responds to best — Midjourney prompts include parameter flags like --ar and --stylize, while Stable Diffusion prompts include quality tags and negative prompt suggestions.",
         },
       },
       {
@@ -144,7 +144,7 @@ export default function Page() {
             into model-specific vocabulary from memory, it reads an image directly and writes the
             prompt for you. The result is a ready-to-use text prompt, calibrated to whichever AI
             image model you plan to use: Midjourney, Stable Diffusion, Flux, GPT Image 2, or
-            DALL-E.
+            ChatGPT Images.
           </p>
           <p>
             This guide is the complete resource for understanding image-to-prompt technology in
@@ -267,7 +267,7 @@ export default function Page() {
           </p>
           <p>
             There is also the problem of model-specific syntax. Midjourney, Stable Diffusion,
-            Flux, and DALL-E all speak different dialects. A prompt that works beautifully in
+            Flux, and ChatGPT Images all speak different dialects. A prompt that works beautifully in
             Midjourney will often produce mediocre results in Stable Diffusion because the
             weighting system is completely different. Image-to-prompt eliminates this dialect
             problem — you learn{" "}
@@ -503,12 +503,12 @@ export default function Page() {
           </p>
 
           <h3 className="text-xl font-bold text-ink mt-8 mb-3">
-            DALL-E 3
+            ChatGPT Images
           </h3>
           <p>
-            DALL-E 3 is unique in that it re-interprets and expands prompts internally, so the
+            ChatGPT Images is unique in that it re-interprets and expands prompts internally, so the
             output mode focuses on clear, unambiguous descriptive language rather than keyword
-            density. Prompts generated for DALL-E tend to be the most readable — full sentences
+            density. Prompts generated for ChatGPT Images tend to be the most readable — full sentences
             describing the image in concrete terms, without the esoteric style-modifier vocabulary
             that Midjourney users expect.
           </p>
@@ -517,7 +517,7 @@ export default function Page() {
           <div className="my-8 p-5 rounded-2xl border border-ink/10 bg-ink/[0.02]">
             <p className="font-semibold text-ink mb-2">Try the output modes for free</p>
             <p className="text-sm text-ink/70 mb-3">
-              Upload an image and switch between Midjourney, Flux, SD, and DALL-E outputs to see
+              Upload an image and switch between Midjourney, Flux, SD, and ChatGPT Images outputs to see
               exactly how each prompt differs — no account needed for your first generation.
             </p>
             <Link
@@ -576,7 +576,7 @@ export default function Page() {
             prompt that describes it in the language a specific AI image model understands. Instead
             of writing a prompt from scratch, you upload an image — a reference photo, a piece of
             artwork, a screenshot — and the tool produces a ready-to-use prompt calibrated for
-            Midjourney, Stable Diffusion, Flux, DALL-E, or another target model. It is sometimes
+            Midjourney, Stable Diffusion, Flux, ChatGPT Images, or another target model. It is sometimes
             called reverse prompt engineering.
           </p>
 
@@ -599,7 +599,7 @@ export default function Page() {
           </h3>
           <p>
             imageprompting.org supports Midjourney, Stable Diffusion (SD 1.5, SDXL, SD 3), Flux
-            (Schnell and Dev), GPT Image 2, and DALL-E 3. Each output mode is tuned to the specific
+            (Schnell and Dev), GPT Image 2, and ChatGPT Images. Each output mode is tuned to the specific
             syntax and vocabulary that model responds to best — Midjourney prompts include parameter
             flags like <code className="bg-ink/5 px-1 rounded font-mono text-sm">--ar</code> and{" "}
             <code className="bg-ink/5 px-1 rounded font-mono text-sm">--stylize</code>, while
@@ -671,7 +671,7 @@ export default function Page() {
           <div className="font-bold text-xl mb-2">Start extracting prompts from your images</div>
           <p className="text-paper/70 text-sm mb-4 leading-relaxed">
             Free to try. No account required for your first generation. Works with Midjourney,
-            Stable Diffusion, Flux, GPT Image 2, and DALL-E.
+            Stable Diffusion, Flux, GPT Image 2, and ChatGPT Images.
           </p>
           <Link
             href="/image-to-prompt"

@@ -13,11 +13,11 @@ import { currentBillingMonth } from "@/lib/plans";
 export const metadata = {
   title: "Free Image to Prompt Generator — AI Tool",
   description:
-    "Upload any image and get an accurate AI prompt in seconds. Works with Midjourney, DALL-E, Stable Diffusion, and Flux. Free to try — no account needed.",
+    "Upload any image and get an accurate AI prompt in seconds. Works with Midjourney, ChatGPT Images, Stable Diffusion, and Flux. Free to try — no account needed.",
   openGraph: {
     title: "Free Image to Prompt Generator",
     description:
-      "Upload any image and get an accurate AI prompt in seconds. Works with Midjourney, DALL-E, Stable Diffusion, and Flux.",
+      "Upload any image and get an accurate AI prompt in seconds. Works with Midjourney, ChatGPT Images, Stable Diffusion, and Flux.",
     url: "https://imageprompting.org/image-to-prompt",
   },
   alternates: { canonical: "https://imageprompting.org/image-to-prompt" },
@@ -64,7 +64,7 @@ export default async function Page() {
     applicationCategory: "UtilitiesApplication",
     operatingSystem: "Web",
     description:
-      "Upload any image and get an accurate AI prompt in seconds. Works with Midjourney, DALL-E, Stable Diffusion, and Flux.",
+      "Upload any image and get an accurate AI prompt in seconds. Works with Midjourney, ChatGPT Images, Stable Diffusion, and Flux.",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
     aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", reviewCount: "124" },
   };

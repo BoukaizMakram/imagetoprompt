@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 export const metadata = {
   title: "Blog — Image to Prompt Guides & Tutorials",
   description:
-    "Guides on using image-to-prompt for Midjourney, Stable Diffusion, DALL-E, and Flux. Learn reverse prompt engineering, prompt techniques, and more.",
+    "Guides on using image-to-prompt for Midjourney, Stable Diffusion, ChatGPT Images, and Flux. Learn reverse prompt engineering, prompt techniques, and more.",
   alternates: { canonical: "https://imageprompting.org/blog" },
 };
 

@@ -40,7 +40,7 @@ export default function Page() {
           <p>
             imageprompting.org is built specifically for prompt extraction and supports four output
             modes: Midjourney, Stable Diffusion, Flux, and General. The General mode produces
-            clean natural-language descriptions useful for DALL-E or any model that handles prose.
+            clean natural-language descriptions useful for ChatGPT Images or any model that handles prose.
           </p>
           <p>
             The bulk upload feature lets you queue multiple images and generate prompts for all of
@@ -67,7 +67,7 @@ export default function Page() {
           </p>
           <p>
             The output is SD-optimized but not particularly coherent. It won't produce usable
-            Midjourney prompts, and the tag-first format doesn't work well with DALL-E or Flux.
+            Midjourney prompts, and the tag-first format doesn't work well with ChatGPT Images or Flux.
           </p>
           <p>
             <strong>Strengths:</strong> Free, local, integrated into the existing workflow.<br />

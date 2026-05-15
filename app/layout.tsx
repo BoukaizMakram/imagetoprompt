@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s | imageprompting.org",
   },
   description:
-    "Turn any image into a detailed AI prompt instantly. Free to try. Works with Midjourney, DALL-E, Stable Diffusion, and Flux.",
+    "Turn any image into a detailed AI prompt instantly. Free to try. Works with Midjourney, ChatGPT Images, Stable Diffusion, and Flux.",
   keywords: [
     "image to prompt",
     "image to prompt generator",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     "reverse prompt engineering",
     "midjourney prompt from image",
     "stable diffusion prompt extractor",
-    "dalle prompt generator from image",
+    "chatgpt images prompt generator from image",
     "flux prompt from image",
   ],
   openGraph: {
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     siteName: "imageprompting.org",
     title: "Image to Prompt Generator — Free AI Tool",
     description:
-      "Turn any image into a detailed AI prompt instantly. Free to try. Works with Midjourney, DALL-E, Stable Diffusion, and Flux.",
+      "Turn any image into a detailed AI prompt instantly. Free to try. Works with Midjourney, ChatGPT Images, Stable Diffusion, and Flux.",
     url: "https://imageprompting.org",
     images: [{ url: "/og.png", width: 1200, height: 630, alt: "imageprompting.org — Image to Prompt" }],
   },

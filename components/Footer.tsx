@@ -9,7 +9,7 @@ const columns = [
       { label: "Midjourney Prompt", href: "/image-to-prompt/midjourney" },
       { label: "Stable Diffusion Prompt", href: "/image-to-prompt/stable-diffusion" },
       { label: "Flux Prompt", href: "/image-to-prompt/flux" },
-      { label: "DALL-E Prompt", href: "/image-to-prompt/dalle" },
+      { label: "ChatGPT Images Prompt", href: "/image-to-prompt/dalle" },
     ],
   },
   {
