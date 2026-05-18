@@ -1,11 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/compressImage";
-import { BulkUploader } from "./BulkUploader";
+
+const BulkUploader = dynamic(() => import("./BulkUploader").then((m) => m.BulkUploader), {
+  ssr: false,
+});
 
 type Mode =
   | "general"
@@ -70,17 +74,17 @@ const MODE_GROUPS: { label: string; items: { id: Mode; label: string }[] }[] = [
 
 const EXAMPLES = [
   {
-    src: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+    src: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=650&q=75",
     prompt:
       "A close-up of a vibrant green circuit board with intricate copper traces, glowing components, and shallow depth of field. Cinematic lighting, macro photography, ultra-detailed, 8k.",
   },
   {
-    src: "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?auto=format&fit=crop&w=800&q=80",
+    src: "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?auto=format&fit=crop&w=650&q=75",
     prompt:
       "Portrait of a young man wearing a beige coat, standing against a soft pastel wall. Natural daylight, gentle shadows, editorial fashion photography, 35mm film grain.",
   },
   {
-    src: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80",
+    src: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=650&q=75",
     prompt:
       "A misty mountain valley at sunrise, golden light spilling through pine trees, layered fog drifting between ridges. Wide angle landscape, dramatic atmosphere, hyper-realistic.",
   },

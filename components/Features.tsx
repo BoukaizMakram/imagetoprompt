@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const items = [
   {
     title: "Pixel-accurate captions",
@@ -43,12 +45,13 @@ export function Features() {
             key={it.title}
             className={`${it.bg} rounded-3xl p-6 flex flex-col gap-4`}
           >
-            <div className="flex items-center justify-center h-36 sm:h-40">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            <div className="relative flex items-center justify-center h-36 sm:h-40">
+              <Image
                 src={it.image}
                 alt=""
-                className="max-h-full max-w-full object-contain"
+                fill
+                sizes="(max-width: 640px) 280px, (max-width: 1024px) 340px, 260px"
+                className="object-contain"
               />
             </div>
             <div>

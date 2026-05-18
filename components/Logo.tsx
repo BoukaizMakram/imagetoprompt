@@ -1,13 +1,16 @@
-/* eslint-disable @next/next/no-img-element */
+import Image from "next/image";
+
 export function Logo({ className = "" }: { className?: string }) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <img
+      <Image
         src="/logo.png"
         alt="imageprompting.org logo"
         width={32}
         height={32}
         className="w-8 h-8 rounded-lg"
+        sizes="32px"
+        priority
       />
       <span className="font-extrabold tracking-tight text-ink whitespace-nowrap">
         imageprompting<span className="text-ink/50">.org</span>
