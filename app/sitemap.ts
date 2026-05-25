@@ -6,7 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     { url: base, lastModified: now, changeFrequency: "weekly", priority: 1 },
-    { url: `${base}/image-to-prompt`, lastModified: now, changeFrequency: "weekly", priority: 1 },
+    { url: `${base}/image-to-prompt`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${base}/image-to-prompt/midjourney`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${base}/image-to-prompt/stable-diffusion`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${base}/image-to-prompt/dalle`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
