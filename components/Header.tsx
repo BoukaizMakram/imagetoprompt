@@ -8,6 +8,7 @@ const nav = [
   { label: "Pricing", href: "/pricing" },
   { label: "Blog", href: "/blog" },
   { label: "Tutorials", href: "/tutorials" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export async function Header() {

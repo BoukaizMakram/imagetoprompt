@@ -633,6 +633,25 @@ export function PromptStudio({
         </div>
       </div>
       )}
+
+      {/* Contact CTA */}
+      <div className="mt-8 max-w-3xl mx-auto rounded-2xl border border-black/10 bg-white px-5 py-5 sm:px-7 sm:py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-ink">Need help or have a question?</p>
+          <p className="text-sm text-ink/65 mt-0.5">
+            Bug reports, billing, partnerships — we reply within two business days.
+          </p>
+        </div>
+        <a
+          href="/contact"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ink text-paper text-sm font-medium hover:opacity-90 whitespace-nowrap"
+        >
+          Contact support
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M13 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
     </section>
   );
 }
