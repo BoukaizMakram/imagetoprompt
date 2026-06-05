@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,18 +7,12 @@ export const dynamic = "force-dynamic";
 const TO = "makramboukaiz@gmail.com";
 
 export async function POST(req: NextRequest) {
-  const host = process.env.SMTP_HOST;
-  const port = Number(process.env.SMTP_PORT || 587);
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  const fromAddress = process.env.CONTACT_FROM_EMAIL || user;
+  const apiKey = process.env.RESEND_API_KEY;
+  const fromAddress = process.env.CONTACT_FROM_EMAIL || "imageprompting.org <noreply@imageprompting.org>";
 
-  if (!host || !user || !pass) {
+  if (!apiKey) {
     return NextResponse.json(
-      {
-        error:
-          "Email service is not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS in .env.local. See README for setup.",
-      },
+      { error: "Email service is not configured. Set RESEND_API_KEY in .env.local." },
       { status: 500 }
     );
   }
@@ -73,15 +67,10 @@ export async function POST(req: NextRequest) {
     </div>
   `;
 
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465, // true for 465 (SMTPS), false for 587 (STARTTLS)
-    auth: { user, pass },
-  });
+  const resend = new Resend(apiKey);
 
   try {
-    await transporter.sendMail({
+    const { error } = await resend.emails.send({
       from: fromAddress,
       to: TO,
       replyTo: `${name} <${email}>`,
@@ -89,6 +78,12 @@ export async function POST(req: NextRequest) {
       text,
       html,
     });
+    if (error) {
+      return NextResponse.json(
+        { error: `Email send failed: ${String(error.message || error).slice(0, 400)}` },
+        { status: 502 }
+      );
+    }
   } catch (e: any) {
     return NextResponse.json(
       { error: `Email send failed: ${String(e?.message || e).slice(0, 400)}` },
