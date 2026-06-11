@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "./Logo";
 import { HeaderNav } from "./HeaderNav";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { hasAuthCookieFromHeaders } from "@/lib/supabase/hasAuthCookie";
 
 const nav = [
   { label: "Image to Prompt", href: "/image-to-prompt" },
@@ -12,10 +13,14 @@ const nav = [
 ];
 
 export async function Header() {
-  const supabase = createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user: { id: string } | null = null;
+  if (hasAuthCookieFromHeaders()) {
+    const supabase = createSupabaseServerClient();
+    const {
+      data: { user: authedUser },
+    } = await supabase.auth.getUser();
+    user = authedUser;
+  }
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-paper/70 border-b border-black/5">

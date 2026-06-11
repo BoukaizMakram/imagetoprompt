@@ -1,8 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
+import { hasAuthCookieFromRequest } from "./hasAuthCookie";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
+
+  if (!hasAuthCookieFromRequest(request)) {
+    return response;
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

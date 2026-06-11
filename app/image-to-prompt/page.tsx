@@ -8,6 +8,7 @@ import { HowToUse } from "@/components/HowToUse";
 import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/supabase/server";
+import { hasAuthCookieFromHeaders } from "@/lib/supabase/hasAuthCookie";
 import { currentBillingMonth } from "@/lib/plans";
 
 export const metadata = {
@@ -26,14 +27,19 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const supabase = createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   let credits: number | null = null;
   let unlimited = false;
   let preferredTier: "standard" | "enhanced" | "premium" = "standard";
+  let user: { id: string } | null = null;
+
+  if (hasAuthCookieFromHeaders()) {
+    const supabase = createSupabaseServerClient();
+    const {
+      data: { user: authedUser },
+    } = await supabase.auth.getUser();
+    user = authedUser;
+  }
+
   if (user) {
     const service = createSupabaseServiceClient();
     const [{ data: balance }, { data: profile }] = await Promise.all([
